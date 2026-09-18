@@ -3,7 +3,7 @@ description: >-
   A one-time-code (OTP) input whose boxes become the loading indicator: on
   submit they fly from the row onto a circle and orbit it until verification
   resolves, then land as a check mark or shake back into place.
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/draz26648/otp_animated_fields
 issue_tracker: https://github.com/draz26648/otp_animated_fields/issues
 
