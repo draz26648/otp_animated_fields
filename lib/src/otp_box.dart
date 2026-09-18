@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 
 import 'theme/otp_animated_theme.dart';
 
-/// The looks a single box can take.
+/// The visual states of a single box.
 enum OtpBoxVisual {
   /// Waiting for a character.
   empty,
@@ -14,7 +14,7 @@ enum OtpBoxVisual {
   /// Holds a character.
   filled,
 
-  /// Travelling to, or circling on, the orbit.
+  /// Moving into orbit or orbiting during verification.
   orbiting,
 
   /// Verification failed.
@@ -27,8 +27,8 @@ enum OtpBoxVisual {
   disabled,
 }
 
-/// One box of an `OtpAnimatedField`: a rounded tile showing a character or the
-/// blinking cursor, cross-fading between [OtpBoxVisual]s.
+/// A rounded box that shows a character or blinking cursor in an
+/// `OtpAnimatedField`. Cross-fades between [OtpBoxVisual] states.
 class OtpBox extends StatelessWidget {
   /// Creates a box.
   const OtpBox({
@@ -44,7 +44,7 @@ class OtpBox extends StatelessWidget {
   /// The character to show, or an empty string.
   final String character;
 
-  /// The current look.
+  /// The current visual state.
   final OtpBoxVisual visual;
 
   /// Colors, sizes and timings.
@@ -56,7 +56,7 @@ class OtpBox extends StatelessWidget {
   /// Whether this box holds the cursor.
   final bool showCursor;
 
-  /// Toggles to blink the cursor.
+  /// Controls cursor visibility during blinking.
   final ValueListenable<bool> cursorVisible;
 
   // Proportions of a box, as fractions of its side.

@@ -13,13 +13,13 @@ import 'otp_orbit_painter.dart';
 import 'otp_status.dart';
 import 'theme/otp_animated_theme.dart';
 
-/// Verifies [code] and resolves to whether it was accepted.
+/// Verifies [code] and returns whether verification succeeded.
 typedef OtpVerifyCallback = Future<bool> Function(String code);
 
-/// What a screen reader says about an `OtpAnimatedField`.
+/// Screen reader labels and status announcements for an `OtpAnimatedField`.
 ///
-/// The defaults are English; pass localized strings from your app's
-/// localizations. An empty string silences that announcement.
+/// The defaults are English. Pass strings from your app's localizations to
+/// use another language. An empty string silences that announcement.
 @immutable
 class OtpSemanticLabels {
   /// Creates a set of labels.
@@ -45,9 +45,9 @@ class OtpSemanticLabels {
 
 /// A one-time-code input whose boxes turn into the loading indicator.
 ///
-/// While the user types, the boxes sit in a row. Once the code is submitted
-/// they shrink, fly onto a circle and orbit it until verification resolves:
-/// into a check mark on success, or back to the row with a shake on failure.
+/// While the user types, the boxes sit in a row. On submission, they shrink
+/// and move into a circular orbit while verification runs. They collapse into
+/// a check mark on success, or return to the row and shake on failure.
 ///
 /// Verify with a future:
 ///
@@ -59,7 +59,7 @@ class OtpSemanticLabels {
 /// )
 /// ```
 ///
-/// or drive it yourself, e.g. from a Bloc listener or a "Verify" button:
+/// Or control verification from a Bloc listener or a Verify button:
 ///
 /// ```dart
 /// OtpAnimatedField(controller: otp, autoVerify: false)
@@ -67,8 +67,8 @@ class OtpSemanticLabels {
 /// otp.verify();  // then otp.succeed() or otp.fail()
 /// ```
 ///
-/// The digit order is always left to right, including in RTL locales, because
-/// a code reads the same way in every language.
+/// Digits keep the same left-to-right order in every locale, including RTL
+/// locales.
 class OtpAnimatedField extends StatefulWidget {
   /// Creates an animated one-time-code field.
   const OtpAnimatedField({
@@ -104,15 +104,15 @@ class OtpAnimatedField extends StatefulWidget {
   /// Number of characters in the code.
   final int length;
 
-  /// Controls the text and the verification status. The field creates its own
-  /// when null.
+  /// Controls the text and verification status. If null, the field creates
+  /// its own controller.
   final OtpAnimatedController? controller;
 
-  /// Controls keyboard focus. The field creates its own when null.
+  /// Controls keyboard focus. If null, the field creates its own focus node.
   final FocusNode? focusNode;
 
-  /// Colors, sizes and timings. Adapts to the ambient Material theme when
-  /// null; see [OtpAnimatedTheme.of].
+  /// The field's appearance and animation settings. If null, the field follows
+  /// the surrounding Material theme through [OtpAnimatedTheme.of].
   final OtpAnimatedTheme? theme;
 
   /// Whether to focus the field as soon as it is shown.
@@ -125,13 +125,14 @@ class OtpAnimatedField extends StatefulWidget {
   /// submit from a button with [OtpAnimatedController.verify].
   final bool autoVerify;
 
-  /// Whether the code is cleared after the error animation.
+  /// Whether the field clears the code after the error animation.
   final bool clearOnError;
 
-  /// Whether the field always takes the height of the orbit, keeping the row
-  /// vertically centered in it, so nothing around it moves when verification
-  /// starts. When false the field is as tall as the row and grows while the
-  /// boxes travel to the orbit.
+  /// Whether to reserve the orbit's full height and center the row within it.
+  ///
+  /// Reserving space keeps nearby content in place when verification starts.
+  /// When false, the field starts at the row's height and grows as the boxes
+  /// move into orbit.
   final bool reserveOrbitSpace;
 
   /// Whether to hide the entered characters.
@@ -143,18 +144,18 @@ class OtpAnimatedField extends StatefulWidget {
   /// Whether to vibrate on success and on error.
   final bool hapticFeedback;
 
-  /// The shortest time the boxes stay in orbit, so a fast backend does not cut
-  /// the animation short. Use [Duration.zero] to resolve as soon as possible.
+  /// The minimum loading animation time when the backend responds quickly.
+  /// Use [Duration.zero] to show the result as soon as possible.
   final Duration minimumVerifyingDuration;
 
   /// The keyboard to show.
   final TextInputType keyboardType;
 
-  /// Restricts what can be entered. Defaults to digits only. The field always
-  /// limits the input to [length] characters on top of these.
+  /// Restricts the accepted characters. Defaults to digits only. The field
+  /// also limits input to [length] characters, regardless of these formatters.
   final List<TextInputFormatter>? inputFormatters;
 
-  /// What a screen reader says about the field.
+  /// Screen reader labels and status announcements for the field.
   final OtpSemanticLabels semanticLabels;
 
   /// Called whenever the entered code changes.
@@ -163,9 +164,9 @@ class OtpAnimatedField extends StatefulWidget {
   /// Called when the last character is entered, before verification starts.
   final ValueChanged<String>? onCompleted;
 
-  /// Verifies the submitted code. The field orbits until the future resolves,
-  /// then plays the success animation for true and the error animation for
-  /// false. A thrown error counts as false and is reported to [FlutterError].
+  /// Verifies the submitted code while the boxes orbit. Returning true plays
+  /// the success animation; false plays the error animation. The field treats
+  /// a thrown error as false and reports it to [FlutterError].
   ///
   /// When null, resolve verification with [OtpAnimatedController.succeed] or
   /// [OtpAnimatedController.fail].
@@ -174,8 +175,8 @@ class OtpAnimatedField extends StatefulWidget {
   /// Called whenever the controller's status changes.
   final ValueChanged<OtpStatus>? onStatusChanged;
 
-  /// Called with the code once the success animation has finished: the moment
-  /// to navigate away.
+  /// Called with the code after the success animation finishes. Use this
+  /// callback to navigate away without cutting off the animation.
   final ValueChanged<String>? onVerified;
 
   /// Called with the rejected code once the error animation has finished.
@@ -213,12 +214,12 @@ class _OtpAnimatedFieldState extends State<OtpAnimatedField>
   late String _text;
   late OtpStatus _status;
 
-  /// The status the boxes are dressed for. Trails [_status] so a result only
-  /// shows once [_hold] has run out.
+  /// The status the boxes display. Can lag behind [_status] to keep the result
+  /// hidden until [_hold] finishes.
   OtpStatus _visual = OtpStatus.idle;
 
-  /// Bumped on every status change so a superseded animation sequence stops
-  /// at its next await.
+  /// Increments on each status change so an outdated animation sequence stops
+  /// after its next await.
   int _sequence = 0;
   bool _rejectedIncomplete = false;
 
@@ -666,8 +667,8 @@ class _OtpAnimatedFieldState extends State<OtpAnimatedField>
     );
   }
 
-  /// The real text field: invisible, and the single source of truth for the
-  /// code, so paste, SMS autofill and hardware keyboards behave natively.
+  /// The invisible text field that stores the code and handles native text
+  /// input, including paste, SMS autofill and hardware keyboards.
   Widget _buildInput(OtpAnimatedTheme theme) {
     const transparent = otpTransparent;
     return ExcludeFocus(

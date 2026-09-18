@@ -1,10 +1,10 @@
 ## 0.1.0
 
 * Initial release.
-* `OtpAnimatedField`: a one-time-code input whose boxes fly from the row onto
-  a circle and orbit it while the code is verified, then collapse into a check
-  mark or shake back into the row.
-* `OtpAnimatedController`: text plus `verify()`, `succeed()`, `fail()` and
-  `reset()` for driving verification manually.
-* `OtpAnimatedTheme`: dark and light presets, or derived from the ambient
-  Material theme.
+* `OtpAnimatedField` displays a one-time-code input. Its boxes move into a
+  circular orbit during verification, then collapse into a check mark on
+  success or return to the row and shake on failure.
+* `OtpAnimatedController` manages the input text and lets you control
+  verification with `verify()`, `succeed()`, `fail()` and `reset()`.
+* `OtpAnimatedTheme` provides dark and light presets and can follow the
+  surrounding Material theme.

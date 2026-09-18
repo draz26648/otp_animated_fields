@@ -6,9 +6,8 @@ import 'theme/otp_animated_theme.dart';
 
 /// Resolved sizes and positions for one layout pass of an `OtpAnimatedField`.
 ///
-/// Everything is centered in [size]: the row of boxes and the orbit share the
-/// same center, so a box only ever travels between [rowCenter] and
-/// [orbitCenter].
+/// The row and orbit share the center of [size]. Each box moves between its
+/// [rowCenter] and [orbitCenter] positions.
 @immutable
 class OtpGeometry {
   const OtpGeometry._({
@@ -75,7 +74,7 @@ class OtpGeometry {
   final int length;
 
   /// Scale applied to the themed sizes so the row fits the available width.
-  /// 1.0 when nothing had to shrink.
+  /// A value of 1.0 means the row fits without shrinking.
   final double fit;
 
   /// Side length of a box in the row.
@@ -102,7 +101,7 @@ class OtpGeometry {
   /// Radius of the thin ring that passes behind the orbiting boxes.
   double get innerRingRadius => orbitRadius + orbitBoxSize * 0.19;
 
-  /// Radius of the dotted ring that hugs the outer corners of the boxes.
+  /// Radius of the dotted ring around the outer corners of the boxes.
   double get outerRingRadius => orbitRadius + orbitBoxSize * 0.62;
 
   /// Center of the field, shared by the row and the orbit.

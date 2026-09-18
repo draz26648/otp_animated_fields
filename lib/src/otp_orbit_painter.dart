@@ -6,9 +6,9 @@ import 'package:flutter/widgets.dart';
 import 'otp_geometry.dart';
 import 'otp_motion.dart';
 
-/// Paints what sits behind the orbiting boxes: a thin inner ring, a dotted
-/// outer ring lit by a rotating sweep of the accent color, and the check mark
-/// badge the orbit collapses into on success.
+/// Paints the thin inner ring and dotted outer ring behind the orbiting boxes.
+/// A rotating sweep of the accent color lights the outer ring. On success,
+/// paints the check mark badge that the boxes collapse into.
 class OtpOrbitPainter extends CustomPainter {
   /// Creates a painter that repaints whenever [motion] ticks.
   OtpOrbitPainter({
@@ -19,10 +19,10 @@ class OtpOrbitPainter extends CustomPainter {
     required this.successColor,
   }) : super(repaint: motion.repaint);
 
-  /// Where the orbit is.
+  /// The orbit's size and position.
   final OtpGeometry geometry;
 
-  /// The animations to follow.
+  /// The animations that control the rings and success badge.
   final OtpMotion motion;
 
   /// Color of the dotted outer ring.

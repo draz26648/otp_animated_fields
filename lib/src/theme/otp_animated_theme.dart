@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart' show Theme;
 import 'package:flutter/widgets.dart';
 
-/// Paints nothing. Hides the real text field that sits behind the boxes.
+/// A transparent color used to hide the text field behind the boxes.
 const Color otpTransparent = Color(0x00000000);
 
-/// Visual and motion configuration for an `OtpAnimatedField`.
+/// Appearance and animation settings for an `OtpAnimatedField`.
 ///
-/// Use [OtpAnimatedTheme.dark] or [OtpAnimatedTheme.light] for the curated
-/// presets, or leave the field's `theme` null to adapt to the ambient Material
-/// [Theme] via [OtpAnimatedTheme.of].
+/// Choose [OtpAnimatedTheme.dark] or [OtpAnimatedTheme.light], or leave the
+/// field's `theme` null to follow the surrounding Material [Theme] through
+/// [OtpAnimatedTheme.of].
 @immutable
 class OtpAnimatedTheme {
-  /// Creates a fully custom theme.
+  /// Creates a theme with custom colors and animation settings.
   const OtpAnimatedTheme({
     required this.fillColor,
     required this.borderColor,
@@ -80,8 +80,10 @@ class OtpAnimatedTheme {
     );
   }
 
-  /// A theme derived from the ambient Material [Theme]: its brightness picks
-  /// the preset, and its primary and error colors replace the preset accents.
+  /// Creates a theme from the surrounding Material [Theme].
+  ///
+  /// Its brightness selects the preset. Its primary and error colors set the
+  /// accent and error colors.
   factory OtpAnimatedTheme.of(BuildContext context) {
     final material = Theme.of(context);
     final scheme = material.colorScheme;
@@ -118,8 +120,8 @@ class OtpAnimatedTheme {
   /// Appearance of the iOS keyboard.
   final Brightness keyboardAppearance;
 
-  /// Side length of a box in the row. Shrinks automatically when the row would
-  /// not fit the available width.
+  /// Side length of a box in the row. The field shrinks boxes automatically
+  /// when the row would exceed the available width.
   final double boxSize;
 
   /// Space between two boxes in the row.
@@ -139,8 +141,8 @@ class OtpAnimatedTheme {
 
   /// Radius of the circle the box centers travel on.
   ///
-  /// When null it is derived from [boxSize] and grows with the code length so
-  /// the boxes never collide.
+  /// When null, the radius depends on [boxSize] and grows with the code length
+  /// to keep the boxes apart.
   final double? orbitRadius;
 
   /// How long the boxes take to travel between the row and the orbit.
@@ -155,7 +157,7 @@ class OtpAnimatedTheme {
   /// Length of the success animation.
   final Duration successDuration;
 
-  /// How long a box takes to cross-fade between styles, e.g. when focus moves.
+  /// How long a box takes to cross-fade between styles, such as on focus changes.
   final Duration styleDuration;
 
   /// Returns a copy with the given fields replaced.

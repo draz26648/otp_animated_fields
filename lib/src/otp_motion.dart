@@ -4,9 +4,9 @@ import 'package:flutter/widgets.dart';
 
 import 'otp_geometry.dart';
 
-/// The animations that drive an `OtpAnimatedField`, bundled so the box layout
-/// and the orbit painter repaint from one [Listenable] without rebuilding any
-/// widget per frame.
+/// Groups the animations for an `OtpAnimatedField` into one [Listenable].
+/// The box layout and orbit painter use it to repaint without rebuilding
+/// widgets on each animation frame.
 class OtpMotion {
   /// Bundles the given animations.
   OtpMotion({
@@ -16,7 +16,7 @@ class OtpMotion {
     required this.success,
   }) : repaint = Listenable.merge([morph, orbit, shake, success]);
 
-  /// 0 when the boxes sit in the row, 1 when they are on the orbit.
+  /// Progress from the row (0) to the orbit (1).
   final Animation<double> morph;
 
   /// Revolutions of the orbit, looping from 0 to 1.
@@ -28,7 +28,7 @@ class OtpMotion {
   /// Progress of the success animation.
   final Animation<double> success;
 
-  /// Fires whenever any of the animations ticks.
+  /// Notifies listeners whenever any animation ticks.
   final Listenable repaint;
 
   static const Curve _travel = Curves.easeInOutCubic;
@@ -39,8 +39,8 @@ class OtpMotion {
   static const Curve _shakeWindow = Interval(0, 0.6);
   static const int _shakeSwings = 3;
 
-  /// Row-to-orbit progress of box [index] out of [length], staggered so the
-  /// boxes peel off the row one after another.
+  /// Progress of box [index] out of [length] from the row to the orbit.
+  /// Staggers the movement so boxes leave the row one after another.
   double travel(int index, int length) {
     final delay = length > 1 ? math.min(0.08, 0.3 / (length - 1)) : 0.0;
     final window = 1 - delay * (length - 1);
@@ -52,7 +52,7 @@ class OtpMotion {
   double get convergence => _converge.transform(success.value);
 
   /// Horizontal displacement of the row during the error shake, as a fraction
-  /// of the shake amplitude. Decays to zero.
+  /// of the shake amplitude. The displacement decays to zero.
   double get shakeOffset {
     final t = _shakeWindow.transform(shake.value);
     return math.sin(t * _shakeSwings * 2 * math.pi) * (1 - t);
@@ -68,10 +68,10 @@ class OtpFlowDelegate extends FlowDelegate {
     required this.shakeAmplitude,
   }) : super(repaint: motion.repaint);
 
-  /// Where the row and the orbit are.
+  /// Sizes and positions of the row and orbit.
   final OtpGeometry geometry;
 
-  /// The animations to follow.
+  /// The animations that control box movement.
   final OtpMotion motion;
 
   /// Peak horizontal displacement of the error shake, in logical pixels.

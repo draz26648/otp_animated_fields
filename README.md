@@ -1,31 +1,35 @@
 # otp_animated_fields
 
-A one-time-code (OTP) input for Flutter whose boxes become the loading
-indicator. When the code is submitted, the boxes shrink, fly off the row onto a
-circle and orbit it until verification resolves. Then they collapse into a check
-mark, or fly back to the row and shake.
+A Flutter input for one-time codes (OTP). When the user submits a code, the
+boxes shrink and move from the row into a circular orbit while verification
+runs. They collapse into a check mark on success, or return to the row and
+shake on failure.
 
 <p align="center">
   <img
     src="https://raw.githubusercontent.com/draz26648/otp_animated_fields/main/doc/demo.gif"
-    alt="Typing a 4-digit code: the boxes fly from the row onto a circle, orbit while the code is verified, then collapse into a green check mark."
+    alt="A user enters a 4-digit code. The boxes move into a circular orbit during verification, then collapse into a green check mark."
     width="320"
   />
 </p>
 
 ## Features
 
-- Row to orbit to result, as one continuous animation. No spinner to swap in.
-- Two ways to verify: return a `Future<bool>` from `onVerify`, or drive the
-  status yourself with a controller (handy for Bloc, or a "Verify" button).
-- A real text field underneath, so paste, SMS autofill (`oneTimeCode`), hardware
-  keyboards and backspace all behave natively. No `Material` ancestor needed.
-- Dark and light presets, or adapts to your app's `Theme` out of the box.
-- Boxes shrink to fit narrow screens, and the orbit widens for longer codes so
-  6 or 8 boxes never collide.
-- Digits stay left to right in RTL locales, respect the user's text scale, and
-  status changes are announced to screen readers. Honors "reduce motion".
-- Animation runs as paint-only transforms: no widget rebuilds per frame.
+- The boxes animate continuously from input to loading to result, so you
+  don't need a separate spinner.
+- Return a `Future<bool>` from `onVerify`, or control verification yourself
+  with a controller. The controller also works with Bloc or a Verify button.
+- A real text field handles paste, hardware keyboards and backspace, with a
+  `oneTimeCode` hint for SMS autofill. The widget doesn't need a `Material`
+  ancestor.
+- Use the dark or light preset, or let the field follow your app's `Theme`.
+- Boxes shrink to fit narrow screens. The orbit widens for longer codes to
+  keep 6 or 8 boxes apart.
+- Digits stay left to right in RTL locales and follow the user's text scale.
+  The field announces status changes to screen readers and respects reduced
+  motion preferences.
+- The boxes move through transforms applied during painting, without widget
+  rebuilds on each animation frame.
 
 ## Installation
 
@@ -33,7 +37,7 @@ mark, or fly back to the row and shake.
 flutter pub add otp_animated_fields
 ```
 
-Requires Flutter 3.35 or newer.
+The package requires Flutter 3.35 or newer.
 
 ## Usage
 
@@ -48,16 +52,20 @@ OtpAnimatedField(
 )
 ```
 
-Entering the last digit submits the code. The boxes orbit until the future
-resolves: `true` plays the success animation, `false` (or a thrown error, which
-is also reported to `FlutterError`) plays the error animation, clears the code
-and hands the field back to the user. `onVerified` fires when the success
-animation has finished, so it is the right moment to navigate.
+Entering the last digit submits the code. Return `true` from `onVerify` to
+play the success animation, or `false` to play the error animation. By default,
+the field clears a rejected code after the animation and accepts another
+attempt. A thrown error also triggers the error animation and is reported to
+`FlutterError`.
+
+The boxes orbit while verification runs, subject to `minimumVerifyingDuration`
+described below. `onVerified` runs after the success animation finishes, so you
+can navigate there without cutting off the animation.
 
 ### Driving it yourself
 
-Leave `onVerify` out and resolve verification through the controller. This fits
-state management where the result arrives somewhere else, like a `BlocListener`:
+Omit `onVerify` to manage the result through the controller. Use this when
+another part of your app receives the result, such as a `BlocListener`:
 
 ```dart
 final otp = OtpAnimatedController();
@@ -82,24 +90,25 @@ OtpAnimatedField(controller: otp, autoVerify: false, onVerify: verify)
 FilledButton(onPressed: otp.verify, child: const Text('Verify'))
 ```
 
-Calling `verify()` on an incomplete code shakes the field and keeps what was
-typed. After "Resend code", call `otp.reset()` to return to an empty row from
-any state.
+Calling `verify()` on an incomplete code shakes the field and keeps the digits
+already entered. After resending a code, call `otp.reset()` to return to an
+empty row from any state.
 
-| Controller        | Effect                                               |
-| ----------------- | ---------------------------------------------------- |
-| `text`, `clear()` | It is a `TextEditingController`                      |
-| `status`          | `idle`, `verifying`, `success` or `error`            |
-| `verify()`        | Submit the code: row to orbit                        |
-| `succeed()`       | Orbit to check mark                                  |
-| `fail()`          | Orbit to row, shake, then back to `idle`             |
-| `reset()`         | Anything to an empty row; `clearText: false` to keep |
+| Controller | Effect |
+| ---------- | ------ |
+| `text`, `clear()` | Read, set or clear the code through the inherited `TextEditingController` API. |
+| `status` | Read the current state: `idle`, `verifying`, `success` or `error`. |
+| `verify()` | Submit the code and move the boxes into orbit. |
+| `succeed()` | Resolve verification and collapse the boxes into a check mark. |
+| `fail()` | Return the boxes to the row, shake, then return to `idle`. |
+| `reset()` | Reset from any state to an empty row. Pass `clearText: false` to keep the code. |
 
 ## Theming
 
-With no `theme`, the field follows the ambient Material theme: brightness picks
-the preset, `colorScheme.primary` becomes the accent and `colorScheme.error` the
-error color. Or pick a preset and adjust it:
+If you omit `theme`, the field follows the surrounding Material theme. Its
+brightness selects the preset, `colorScheme.primary` sets the accent, and
+`colorScheme.error` sets the error color. You can also choose a preset and
+adjust it:
 
 ```dart
 OtpAnimatedField(
@@ -112,44 +121,44 @@ OtpAnimatedField(
 )
 ```
 
-`OtpAnimatedTheme` covers colors, box size, gap, corner radius, glow, the orbit
-radius and box scale, and every duration.
+Use `OtpAnimatedTheme` to adjust colors, box size and spacing, corner radius,
+glow, orbit radius, the size of orbiting boxes, and animation durations.
 
 ## Layout
 
-By default the field is always as tall as the orbit, with the row centered in
-it, so nothing around it moves when verification starts. Set
-`reserveOrbitSpace: false` for a field that is only as tall as the row and grows
-while the boxes travel.
+By default, the field reserves the orbit's full height and centers the row
+within it. This keeps nearby content in place when verification starts. Set
+`reserveOrbitSpace: false` to start at the row's height and let the field grow
+as the boxes move into orbit.
 
-`minimumVerifyingDuration` (1.5 s by default) keeps the boxes in orbit long
-enough for the animation to read when the backend answers instantly. Set it to
-`Duration.zero` to resolve as soon as possible.
+`minimumVerifyingDuration` defaults to 1.5 seconds. It keeps the loading
+animation visible when the backend responds quickly. Set it to `Duration.zero`
+to show the result as soon as possible.
 
 ## Other options
 
-| Parameter                              | Purpose                                         |
-| -------------------------------------- | ----------------------------------------------- |
-| `obscureText`, `obscuringCharacter`    | Hide the digits                                 |
-| `keyboardType`, `inputFormatters`      | Alphanumeric codes (defaults to digits only)    |
-| `clearOnError`                         | Keep the rejected code instead of clearing it   |
-| `enabled`, `focusNode`, `autofocus`    | The usual                                       |
-| `hapticFeedback`                       | Vibrate on success and error                    |
-| `semanticLabels`                       | Localized screen reader label and announcements |
-| `onChanged`, `onCompleted`, `onFailed` | Callbacks                                       |
-| `onStatusChanged`                      | Swap the title to "Verifying..." and the like   |
+| Parameter | Purpose |
+| --------- | ------- |
+| `obscureText`, `obscuringCharacter` | Hide the entered digits and choose the character shown in their place. |
+| `keyboardType`, `inputFormatters` | Configure input for alphanumeric codes. The default accepts digits only. |
+| `clearOnError` | Set to `false` to keep a rejected code instead of clearing it. |
+| `enabled`, `focusNode`, `autofocus` | Control whether the field accepts input, manage focus, or focus it when it appears. |
+| `hapticFeedback` | Enable vibration on success and error. |
+| `semanticLabels` | Supply a localized screen reader label and status announcements. |
+| `onChanged`, `onCompleted`, `onFailed` | Respond to edits, a complete code, or a failed attempt after the error animation. |
+| `onStatusChanged` | Update surrounding content when the status changes, such as a "Verifying..." title. |
 
 ## Testing your app
 
-The cursor blinks on a timer rather than a repeating animation, so
-`pumpAndSettle()` settles while the field is focused. It does not settle while
-the field is verifying, the same as any progress indicator: resolve the
-verification first, or use `pump(duration)`.
+The cursor uses a timer to blink, so `pumpAndSettle()` can settle while the
+field is focused. The repeating orbit animation keeps it from settling during
+verification. Resolve verification first, or advance the test with
+`pump(duration)`.
 
 ## Example
 
-`example/` recreates a full verification card with a theme toggle. `1234` is
-accepted, anything else is rejected.
+The app in `example/` shows a full verification card with a theme toggle.
+Its simulated backend accepts `1234` and rejects every other code.
 
 ```bash
 cd example && flutter run
@@ -157,7 +166,7 @@ cd example && flutter run
 
 ## Contributing
 
-Issues and pull requests are welcome at
+Report bugs or contribute a pull request on
 [github.com/draz26648/otp_animated_fields](https://github.com/draz26648/otp_animated_fields/issues).
 
 ## License

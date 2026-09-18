@@ -1,5 +1,6 @@
-/// A one-time-code field whose boxes become the loading indicator: on submit
-/// they fly from the row onto a circle and orbit it until verification ends.
+/// A Flutter input for one-time codes whose boxes become the loading indicator.
+/// On submission, the boxes move from the row into a circular orbit while
+/// verification runs.
 library;
 
 export 'src/otp_animated_controller.dart';

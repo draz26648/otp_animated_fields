@@ -3,7 +3,7 @@ import 'package:otp_animated_fields/otp_animated_fields.dart';
 
 void main() => runApp(const ExampleApp());
 
-/// The code the fake backend accepts.
+/// The code the simulated backend accepts.
 const _validCode = '1234';
 const _accent = Color(0xFFFF5A3C);
 
@@ -63,7 +63,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
     super.dispose();
   }
 
-  /// Stands in for a network call.
+  /// Simulates a network request to verify the code.
   Future<bool> _verify(String code) async {
     await Future<void>.delayed(const Duration(milliseconds: 2500));
     return code == _validCode;
