@@ -1,0 +1,28 @@
+name: otp_animated_fields
+description: >-
+  A one-time-code (OTP) input whose boxes become the loading indicator: on
+  submit they fly from the row onto a circle and orbit it until verification
+  resolves, then land as a check mark or shake back into place.
+version: 0.1.0
+repository: https://github.com/draz26648/otp_animated_fields
+issue_tracker: https://github.com/draz26648/otp_animated_fields/issues
+
+environment:
+  sdk: ^3.9.0
+  flutter: ">=3.35.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+topics:
+  - otp
+  - pin
+  - input
+  - animation
+  - verification
