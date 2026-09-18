@@ -20,6 +20,12 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
 
+screenshots:
+  - description: >-
+      The boxes fly from the row onto a circle and orbit it while the code is
+      verified, then collapse into a check mark.
+    path: doc/demo.gif
+
 topics:
   - otp
   - pin

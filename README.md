@@ -5,6 +5,14 @@ indicator. When the code is submitted, the boxes shrink, fly off the row onto a
 circle and orbit it until verification resolves. Then they collapse into a check
 mark, or fly back to the row and shake.
 
+<p align="center">
+  <img
+    src="https://raw.githubusercontent.com/draz26648/otp_animated_fields/main/doc/demo.gif"
+    alt="Typing a 4-digit code: the boxes fly from the row onto a circle, orbit while the code is verified, then collapse into a green check mark."
+    width="320"
+  />
+</p>
+
 ## Features
 
 - Row to orbit to result, as one continuous animation. No spinner to swap in.
