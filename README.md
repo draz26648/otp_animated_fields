@@ -29,13 +29,8 @@ mark, or fly back to the row and shake.
 
 ## Installation
 
-The package is not on pub.dev yet. Until it is, depend on the repository:
-
-```yaml
-dependencies:
-  otp_animated_fields:
-    git:
-      url: https://github.com/draz26648/otp_animated_fields.git
+```bash
+flutter pub add otp_animated_fields
 ```
 
 Requires Flutter 3.35 or newer.
